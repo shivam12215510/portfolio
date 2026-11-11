@@ -1,0 +1,456 @@
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ------------------------------------------------------------------
+   Design tokens. Both themes are designed separately (not inverted):
+   dark = deep black + charcoal glass, light = Apple-style off-white + white cards.
+------------------------------------------------------------------- */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #050506;
+  --bg-2: #0c0c0e;
+  --card: rgb(255 255 255 / 0.04);
+  --card-hover: rgb(255 255 255 / 0.07);
+  --line: rgb(255 255 255 / 0.09);
+  --line-2: rgb(255 255 255 / 0.18);
+  --fg: #f5f5f7;
+  --fg-2: #a1a1a6;
+  --fg-3: #77777d;
+  --accent: #818cf8;
+  --accent-text: #a5b4fc;
+  --btn: #f5f5f7;
+  --btn-fg: #0a0a0c;
+  --grid: rgb(255 255 255 / 0.04);
+  --blob-a: rgb(79 70 229 / 0.22);
+  --blob-b: rgb(139 92 246 / 0.13);
+  --blob-c: rgb(56 189 248 / 0.07);
+  --glow: rgb(129 140 248 / 0.1);
+  --glass-bg: rgb(12 12 14 / 0.74);
+  --shadow-card: 0 30px 80px -30px rgb(0 0 0 / 0.9);
+  --shadow-pop: 0 40px 100px -30px rgb(0 0 0 / 0.95);
+  --noise: 0.035;
+  --grad-from: #ffffff;
+  --grad-mid: #c7d2fe;
+  --grad-to: #818cf8;
+  --scrim: rgb(0 0 0 / 0.7);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #fbfbfd;
+  --bg-2: #f5f5f7;
+  --card: #ffffff;
+  --card-hover: #ffffff;
+  --line: rgb(0 0 0 / 0.08);
+  --line-2: rgb(0 0 0 / 0.16);
+  --fg: #1d1d1f;
+  --fg-2: #515154;
+  --fg-3: #6e6e73;
+  --accent: #4f46e5;
+  --accent-text: #4338ca;
+  --btn: #1d1d1f;
+  --btn-fg: #ffffff;
+  --grid: rgb(0 0 0 / 0.035);
+  --blob-a: rgb(99 102 241 / 0.17);
+  --blob-b: rgb(168 85 247 / 0.1);
+  --blob-c: rgb(56 189 248 / 0.16);
+  --glow: rgb(99 102 241 / 0.08);
+  --glass-bg: rgb(251 251 253 / 0.8);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 28px 70px -28px rgb(0 0 0 / 0.2);
+  --shadow-pop: 0 2px 4px rgb(0 0 0 / 0.04), 0 50px 100px -30px rgb(0 0 0 / 0.3);
+  --noise: 0;
+  --grad-from: #1d1d1f;
+  --grad-mid: #3730a3;
+  --grad-to: #6366f1;
+  --scrim: rgb(0 0 0 / 0.35);
+}
+
+@theme inline {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "SF Pro Display", "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-btn: var(--btn);
+  --color-btn-fg: var(--btn-fg);
+  --animate-ping-slow: ping-slow 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  --animate-drift-a: drift-a 26s ease-in-out infinite;
+  --animate-drift-b: drift-b 32s ease-in-out infinite;
+  --animate-drift-c: drift-c 38s ease-in-out infinite;
+  --animate-float: float 7s ease-in-out infinite;
+}
+
+@keyframes ping-slow {
+  75%, 100% { transform: scale(2.4); opacity: 0; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(8vw, 6vh, 0) scale(1.15); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.05); }
+  50% { transform: translate3d(-9vw, 8vh, 0) scale(0.92); }
+}
+@keyframes drift-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(0.95); }
+  50% { transform: translate3d(5vw, -7vh, 0) scale(1.1); }
+}
+@keyframes spin-angle {
+  to { --angle: 360deg; }
+}
+
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+  background: var(--bg);
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--fg-2);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+  font-feature-settings: "cv11", "ss01";
+  text-rendering: optimizeLegibility;
+}
+#root { isolation: isolate; min-height: 100vh; }
+
+::selection { background: rgb(129 140 248 / 0.35); color: var(--fg); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 999px; border: 2px solid var(--bg); }
+
+/* ---------- Theme switch ---------- */
+/* Circular reveal when View Transitions are supported (see ThemeProvider). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+
+/* Fallback: smooth colour fade for browsers without View Transitions. */
+html.theme-fade,
+html.theme-fade *,
+html.theme-fade *::before,
+html.theme-fade *::after {
+  transition:
+    background-color 0.45s ease,
+    border-color 0.45s ease,
+    color 0.45s ease,
+    fill 0.45s ease,
+    stroke 0.45s ease,
+    box-shadow 0.45s ease !important;
+}
+
+/* ---------- Utilities ---------- */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: 72px 72px;
+  -webkit-mask-image: radial-gradient(ellipse 85% 60% at 50% 0%, #000 20%, transparent 75%);
+  mask-image: radial-gradient(ellipse 85% 60% at 50% 0%, #000 20%, transparent 75%);
+}
+
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  backdrop-filter: blur(18px) saturate(1.6);
+}
+
+.surface {
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-card);
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, var(--grad-from) 5%, var(--grad-mid) 50%, var(--grad-to) 95%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Animated underline for text links */
+.u-link {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size 0.35s cubic-bezier(0.22, 1, 0.36, 1), color 0.2s ease;
+  padding-bottom: 2px;
+}
+.u-link:hover, .u-link:focus-visible { background-size: 100% 1px; }
+
+/* Project accent: --pa is an "r g b" triple; text colour is theme-aware. */
+.pa-text { color: rgb(var(--pa-soft, 165 180 252)); }
+:root[data-theme="light"] .pa-text { color: rgb(var(--pa-deep, 67 56 202)); }
+
+/* Animated gradient border */
+.gborder { position: relative; --pa: 129 140 248; }
+.gborder::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--angle), transparent 0 55%, rgb(var(--pa) / 0.95) 80%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spin-angle 8s linear infinite;
+  opacity: 0.3;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.gborder:hover::before, .gborder:focus-within::before { opacity: 1; }
+
+/* Mouse-follow spotlight */
+.spotlight { position: relative; isolation: isolate; --pa: 129 140 248; }
+.spotlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgb(var(--pa) / 0.12), transparent 65%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.spotlight:hover::after { opacity: 1; }
+
+.noise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.5'/></svg>");
+  opacity: var(--noise);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Heavy decorative motion off on small screens / reduced motion */
+@media (max-width: 767px) {
+  .drift { animation: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drift, .gborder::before { animation: none !important; }
+}
+
+/* ───────── Custom cursor (desktop mouse only; see components/Cursor.tsx) ───────── */
+html.cursor-on,
+html.cursor-on * {
+  cursor: none !important;
+}
+/* text fields keep the native I-beam so typing and selecting feel normal */
+html.cursor-on input:not([type='checkbox']):not([type='radio']):not([type='submit']):not([type='button']),
+html.cursor-on textarea {
+  cursor: text !important;
+}
+html.cursor-on select {
+  cursor: pointer !important;
+}
+
+.cursor-root {
+  --cur: var(--fg);
+  --cur-ink: var(--bg);
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  contain: layout style;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.cursor-root[data-visible='1'] {
+  opacity: 1;
+}
+/* over a text field the native cursor takes over */
+.cursor-root[data-state='native'] {
+  opacity: 0;
+}
+.cursor-root > * {
+  position: fixed;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.cursor-dot-core {
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 999px;
+  background: var(--cur);
+  box-shadow:
+    0 0 10px 1px color-mix(in srgb, var(--cur) 70%, transparent),
+    0 0 26px 4px color-mix(in srgb, var(--accent) 45%, transparent);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+}
+.cursor-ring-shape {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1.25px solid color-mix(in srgb, var(--cur) 55%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  transform: translate(-50%, -50%) scale(1);
+  transition:
+    width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cursor-label {
+  font: 600 10px/1 var(--font-sans, Inter, system-ui, sans-serif);
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  color: var(--cur-ink);
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cursor-halo {
+  width: 70px;
+  height: 70px;
+  margin: -35px 0 0 -35px;
+  border-radius: 999px;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 38%, transparent), transparent);
+  opacity: 0;
+}
+.cursor-pulse-pos {
+  width: 0;
+  height: 0;
+}
+.cursor-pulse {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  border: 1.5px solid color-mix(in srgb, var(--cur) 70%, transparent);
+  opacity: 0;
+  transform: translate(-50%, -50%);
+}
+
+/* hover states */
+.cursor-root[data-state='link'] .cursor-ring-shape {
+  width: 22px;
+  height: 22px;
+  border-color: color-mix(in srgb, var(--cur) 85%, transparent);
+}
+.cursor-root[data-state='link'] .cursor-dot-core {
+  transform: scale(1.5);
+}
+.cursor-root[data-state='button'] .cursor-ring-shape {
+  width: 62px;
+  height: 62px;
+  background: color-mix(in srgb, var(--cur) 9%, transparent);
+  border-color: color-mix(in srgb, var(--cur) 40%, transparent);
+}
+.cursor-root[data-state='button'] .cursor-dot-core {
+  transform: scale(0.6);
+}
+.cursor-root[data-state='view'] .cursor-ring-shape,
+.cursor-root[data-state='github'] .cursor-ring-shape,
+.cursor-root[data-state='project'] .cursor-ring-shape {
+  background: var(--cur);
+  border-color: transparent;
+}
+.cursor-root[data-state='view'] .cursor-ring-shape {
+  width: 76px;
+  height: 76px;
+}
+.cursor-root[data-state='github'] .cursor-ring-shape {
+  width: 84px;
+  height: 84px;
+}
+.cursor-root[data-state='project'] .cursor-ring-shape {
+  width: 112px;
+  height: 112px;
+  background: var(--cur-accent, var(--cur));
+}
+.cursor-root[data-state='project'] .cursor-label {
+  color: #fff;
+}
+.cursor-root[data-state='view'] .cursor-label,
+.cursor-root[data-state='github'] .cursor-label,
+.cursor-root[data-state='project'] .cursor-label {
+  opacity: 1;
+  transform: scale(1);
+}
+.cursor-root[data-state='view'] .cursor-dot-core,
+.cursor-root[data-state='github'] .cursor-dot-core,
+.cursor-root[data-state='project'] .cursor-dot-core {
+  transform: scale(0);
+  opacity: 0;
+}
+/* press feedback */
+.cursor-root[data-down='1'] .cursor-ring-shape {
+  transform: translate(-50%, -50%) scale(0.88);
+}
+.cursor-root[data-down='1'] .cursor-dot-core {
+  transform: scale(1.7);
+}
+
+/* Cards that open a project dialog: gentle lift on hover */
+.project-visual {
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), filter 0.7s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .project-visual:hover {
+    transform: translateY(-6px) scale(1.012);
+    filter: drop-shadow(0 30px 40px color-mix(in srgb, var(--accent) 18%, transparent));
+  }
+}
+.portrait-zoom {
+  transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .portrait-hover:hover .portrait-zoom {
+    transform: scale(1.045);
+  }
+}
